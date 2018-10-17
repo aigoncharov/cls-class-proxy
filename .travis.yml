@@ -6,5 +6,7 @@ before_install:
 install:
   - npm ci
   - npm i cls-hooked
-script: npm run lint && npm test
+script:
+  - npm run lint
+  - npm test
 sudo: false
