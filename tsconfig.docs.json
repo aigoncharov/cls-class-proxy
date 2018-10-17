@@ -1,0 +1,9 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outFile": "./tmp/index.js",
+    "module": "system",
+    "removeComments": false
+  },
+  "files": ["./index.ts"]
+}
