@@ -8,6 +8,7 @@ describe('namespace', () => {
   const sinon = createSandbox()
 
   beforeEach(() => sinon.restore())
+  beforeEach(() => clsHooked.reset())
 
   describe('getOrCreateClsNamespace', () => {
     it('creates a new namespace', () => {

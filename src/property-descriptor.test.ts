@@ -1,28 +1,36 @@
 import { expect } from 'chai'
+import { createSandbox } from 'sinon'
 
 import {
-  makeGetPropertyDescriptorRecursive,
   IProxifyPropertyDescriptorCache,
-  makeGetPropertyDescriptorCached,
+  PropertyDescriptorUtils,
 } from './property-descriptor'
 
-describe('property-descriptor', () => {
-  const checkIsPropertyDescriptor = (target: any) => {
+describe(PropertyDescriptorUtils.constructor.name, () => {
+  const sinon = createSandbox()
+
+  beforeEach(() => sinon.restore())
+
+  const checkIsPropertyDescriptor = (target: any): PropertyDescriptor => {
     expect(target).not.to.be.equal(undefined)
     expect(target).to.be.an('object')
     expect(target).to.have.property('configurable')
     expect(target).to.have.property('enumerable')
     expect(target).to.have.property('value')
     expect(target).to.have.property('writable')
+    return target
   }
 
-  describe(makeGetPropertyDescriptorRecursive.name, () => {
+  describe(PropertyDescriptorUtils.getPropertyDescriptorRecursive.name, () => {
     const props = ['testProp', Symbol()]
     for (const prop of props) {
       it(`gets own property descriptor: ${typeof prop}`, () => {
         const val = 'testVal'
         const obj = { [prop]: val }
-        const descriptor = makeGetPropertyDescriptorRecursive(obj, prop)
+        const descriptor = PropertyDescriptorUtils.getPropertyDescriptorRecursive(
+          obj,
+          prop,
+        )
         checkIsPropertyDescriptor(descriptor)
         expect(descriptor!.value).to.be.equal(val)
       })
@@ -31,7 +39,10 @@ describe('property-descriptor', () => {
         const parent = { [prop]: val }
         const child = {}
         Object.setPrototypeOf(child, parent)
-        const descriptor = makeGetPropertyDescriptorRecursive(child, prop)
+        const descriptor = PropertyDescriptorUtils.getPropertyDescriptorRecursive(
+          child,
+          prop,
+        )
         checkIsPropertyDescriptor(descriptor)
         expect(descriptor!.value).to.be.equal(val)
       })
@@ -41,38 +52,69 @@ describe('property-descriptor', () => {
         const parent = { [prop]: valParent }
         const child = { [prop]: valChild }
         Object.setPrototypeOf(child, parent)
-        const descriptor = makeGetPropertyDescriptorRecursive(child, prop)
+        const descriptor = PropertyDescriptorUtils.getPropertyDescriptorRecursive(
+          child,
+          prop,
+        )
         checkIsPropertyDescriptor(descriptor)
         expect(descriptor!.value).to.be.equal(valChild)
       })
     }
     it('returns undefined if a property descriptor is not found', () => {
       const obj = {}
-      const descriptor = makeGetPropertyDescriptorRecursive(obj, Symbol())
+      const descriptor = PropertyDescriptorUtils.getPropertyDescriptorRecursive(
+        obj,
+        Symbol(),
+      )
       expect(descriptor).to.be.equal(undefined)
     })
   })
 
-  describe(makeGetPropertyDescriptorCached.name, () => {
-    let cache!: IProxifyPropertyDescriptorCache
-    let getPropertyDescriptorCached!: (
+  describe(PropertyDescriptorUtils.makeGetPropertyDescriptorCached.name, () => {
+    let cache: IProxifyPropertyDescriptorCache
+    let getPropertyDescriptorCached: (
       target: object,
       property: string | symbol | number,
-    ) => PropertyDescriptor
-    before(() => {
+    ) => PropertyDescriptor | undefined
+    beforeEach(() => {
       cache = new Map()
-      getPropertyDescriptorCached = makeGetPropertyDescriptorCached(cache)
+      getPropertyDescriptorCached = PropertyDescriptorUtils.makeGetPropertyDescriptorCached(
+        cache,
+      )
     })
-    it('adds a property descriptor to a cache', () => {
-      const prop = 'testProp'
-      const val = 'testVal'
-      const obj = { [prop]: val }
-      expect(cache.size).to.be.equal(0)
-      const descriptor = getPropertyDescriptorCached(obj, prop)
-      checkIsPropertyDescriptor(descriptor)
-      expect(descriptor.value).to.be.equal(val)
-      expect(cache.size).to.be.equal(1)
-      expect(cache.get(prop))
-    })
+    const props = ['testProp', Symbol()]
+    for (const prop of props) {
+      it(`adds a property descriptor to a cache: ${typeof prop}`, () => {
+        const val = 'testVal'
+        const obj = { [prop]: val }
+        expect(cache.size).to.be.equal(0)
+        const descriptorCandidate = getPropertyDescriptorCached(obj, prop)
+        const descriptor = checkIsPropertyDescriptor(descriptorCandidate)
+        expect(descriptor.value).to.be.equal(val)
+        expect(cache.size).to.be.equal(1)
+        expect(cache.get(prop)).to.be.equal(descriptor)
+      })
+      it(`gets a property descriptor from a cache: ${typeof prop}`, () => {
+        const val = 'testVal'
+        const obj = { [prop]: val }
+        expect(cache.size).to.be.equal(0)
+        const spyGetProprtyDescriptorRecursive = sinon.spy(
+          PropertyDescriptorUtils,
+          'getPropertyDescriptorRecursive',
+        )
+        const spyMapSet = sinon.spy(Map.prototype, 'set')
+        getPropertyDescriptorCached(obj, prop)
+        expect(spyGetProprtyDescriptorRecursive.callCount).to.be.equal(1)
+        expect(spyMapSet.callCount).to.be.equal(1)
+        const descriptorCandidate = getPropertyDescriptorCached(obj, prop)
+        // Check getPropertyDescriptorRecursive was not called and we got the descriptor from the cache
+        expect(spyGetProprtyDescriptorRecursive.callCount).to.be.equal(1)
+        expect(spyMapSet.callCount).to.be.equal(1)
+        const descriptor = checkIsPropertyDescriptor(descriptorCandidate)
+        expect(descriptor.value).to.be.equal(val)
+        expect(cache.size).to.be.equal(1)
+        expect(cache.get(prop)).to.be.equal(descriptor)
+      })
+    }
   })
 })
