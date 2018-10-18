@@ -3,7 +3,7 @@ import * as clsHooked from 'cls-hooked'
 import { CLS_CLASS_PROXY_NAMESPACE_NAME } from './constants'
 import { getOrCreateClsNamespace } from './namespace'
 import {
-  getPropertyDescriptorRecursive,
+  makeGetPropertyDescriptorRecursive,
   IProxifyPropertyDescriptorCache,
   makeGetPropertyDescriptorCached,
 } from './property-descriptor'
@@ -12,7 +12,7 @@ export const makeHandlers = <T extends { new (): any }>(
   clsNamespace: clsHooked.Namespace,
   cache?: IProxifyPropertyDescriptorCache,
 ): ProxyHandler<T> => {
-  let getPropertyDescriptor = getPropertyDescriptorRecursive
+  let getPropertyDescriptor = makeGetPropertyDescriptorRecursive
   if (cache) {
     getPropertyDescriptor = makeGetPropertyDescriptorCached(cache)
   }
