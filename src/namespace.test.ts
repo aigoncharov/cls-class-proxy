@@ -7,8 +7,8 @@ import { getOrCreateClsNamespace } from './namespace'
 describe('namespace', () => {
   const sinon = createSandbox()
 
-  beforeEach(() => sinon.restore())
-  beforeEach(() => clsHooked.reset())
+  afterEach(() => sinon.restore())
+  afterEach(() => clsHooked.reset())
 
   describe('getOrCreateClsNamespace', () => {
     it('creates a new namespace', () => {

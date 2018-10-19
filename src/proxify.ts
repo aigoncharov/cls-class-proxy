@@ -14,13 +14,13 @@ export class HandlerManager {
   ): ProxyHandler<new (...args: any[]) => T> {
     return {
       construct(target, args) {
-        return clsNamespace.runAndReturn(
-          () =>
-            new Proxy(
-              new target(...args),
-              HandlerManager._makeInstanceHandlers(clsNamespace, cache),
-            ),
-        )
+        return clsNamespace.runAndReturn(() => {
+          const instance = new target(...args)
+          return new Proxy(
+            instance,
+            HandlerManager._makeInstanceHandlers(clsNamespace, cache),
+          )
+        })
       },
     }
   }
@@ -28,13 +28,14 @@ export class HandlerManager {
     clsNamespace: clsHooked.Namespace,
     cache?: IProxifyPropertyDescriptorCache,
   ): ProxyHandler<T> {
-    let getPropertyDescriptor = PropertyDescriptorUtils.getPropertyDescriptorRecursive.bind(
-      PropertyDescriptorUtils,
-    )
+    let getPropertyDescriptor: (
+      target: T,
+      property: string | number | symbol,
+    ) => PropertyDescriptor | undefined = (...args) =>
+      PropertyDescriptorUtils.getPropertyDescriptorRecursive(...args)
     if (cache) {
-      getPropertyDescriptor = PropertyDescriptorUtils.makeGetPropertyDescriptorCached(
-        cache,
-      )
+      getPropertyDescriptor = (...args) =>
+        PropertyDescriptorUtils.getPropertyDescriptorCached(cache, ...args)
     }
     return {
       get(target, property, receiver) {

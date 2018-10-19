@@ -18,23 +18,17 @@ export class PropertyDescriptorUtils {
     return undefined
   }
 
-  public static makeGetPropertyDescriptorCached(
+  public static getPropertyDescriptorCached(
     cache: IProxifyPropertyDescriptorCache,
-  ) {
-    return (
-      target: object,
-      property: string | symbol | number,
-    ): PropertyDescriptor | undefined => {
-      const cachedDescriptor = cache.get(property)
-      if (cachedDescriptor) {
-        return cachedDescriptor
-      }
-      const newDescriptor = this.getPropertyDescriptorRecursive(
-        target,
-        property,
-      )
-      cache.set(property, newDescriptor)
-      return newDescriptor
+    target: object,
+    property: string | symbol | number,
+  ): PropertyDescriptor | undefined {
+    const cachedDescriptor = cache.get(property)
+    if (cachedDescriptor) {
+      return cachedDescriptor
     }
+    const newDescriptor = this.getPropertyDescriptorRecursive(target, property)
+    cache.set(property, newDescriptor)
+    return newDescriptor
   }
 }

@@ -6,10 +6,10 @@ import {
   PropertyDescriptorUtils,
 } from './property-descriptor'
 
-describe(PropertyDescriptorUtils.constructor.name, () => {
+describe(PropertyDescriptorUtils.name, () => {
   const sinon = createSandbox()
 
-  beforeEach(() => sinon.restore())
+  afterEach(() => sinon.restore())
 
   const checkIsPropertyDescriptor = (target: any): PropertyDescriptor => {
     expect(target).not.to.be.equal(undefined)
@@ -70,17 +70,10 @@ describe(PropertyDescriptorUtils.constructor.name, () => {
     })
   })
 
-  describe(PropertyDescriptorUtils.makeGetPropertyDescriptorCached.name, () => {
+  describe(PropertyDescriptorUtils.getPropertyDescriptorCached.name, () => {
     let cache: IProxifyPropertyDescriptorCache
-    let getPropertyDescriptorCached: (
-      target: object,
-      property: string | symbol | number,
-    ) => PropertyDescriptor | undefined
     beforeEach(() => {
       cache = new Map()
-      getPropertyDescriptorCached = PropertyDescriptorUtils.makeGetPropertyDescriptorCached(
-        cache,
-      )
     })
     const props = ['testProp', Symbol()]
     for (const prop of props) {
@@ -88,7 +81,11 @@ describe(PropertyDescriptorUtils.constructor.name, () => {
         const val = 'testVal'
         const obj = { [prop]: val }
         expect(cache.size).to.be.equal(0)
-        const descriptorCandidate = getPropertyDescriptorCached(obj, prop)
+        const descriptorCandidate = PropertyDescriptorUtils.getPropertyDescriptorCached(
+          cache,
+          obj,
+          prop,
+        )
         const descriptor = checkIsPropertyDescriptor(descriptorCandidate)
         expect(descriptor.value).to.be.equal(val)
         expect(cache.size).to.be.equal(1)
@@ -103,10 +100,14 @@ describe(PropertyDescriptorUtils.constructor.name, () => {
           'getPropertyDescriptorRecursive',
         )
         const spyMapSet = sinon.spy(Map.prototype, 'set')
-        getPropertyDescriptorCached(obj, prop)
+        PropertyDescriptorUtils.getPropertyDescriptorCached(cache, obj, prop)
         expect(spyGetProprtyDescriptorRecursive.callCount).to.be.equal(1)
         expect(spyMapSet.callCount).to.be.equal(1)
-        const descriptorCandidate = getPropertyDescriptorCached(obj, prop)
+        const descriptorCandidate = PropertyDescriptorUtils.getPropertyDescriptorCached(
+          cache,
+          obj,
+          prop,
+        )
         // Check getPropertyDescriptorRecursive was not called and we got the descriptor from the cache
         expect(spyGetProprtyDescriptorRecursive.callCount).to.be.equal(1)
         expect(spyMapSet.callCount).to.be.equal(1)
