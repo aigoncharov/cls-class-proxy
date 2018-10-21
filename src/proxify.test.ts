@@ -15,7 +15,7 @@ describe.only('proxify', () => {
   const checkNamespaceIsActive = (
     namespaceName: string | symbol,
   ): Namespace => {
-    const namespace = getNamespace(namespaceName as any)
+    const namespace = getNamespace(namespaceName)
     expect(namespace).not.to.be.equal(undefined)
     expect(namespace.active).not.to.be.deep.equal(undefined)
     expect(namespace.active).to.be.an('object')

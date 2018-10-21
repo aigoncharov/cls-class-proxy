@@ -83,6 +83,6 @@ const ExampleProxified = proxify()(Example)
 
 `proxify` accepts an optional object with options:
 
-- `namespace`: string|symbol - custom namespace name to use instead of default CLS_CLASS_PROXY_NAMESPACE_NAME
+- `namespace`: string - custom namespace name to use instead of default CLS_CLASS_PROXY_NAMESPACE_NAME
 - `cache`: boolean - to wrap method, getter and setter calls in a CLS context `cls-class-proxy` recursively looks up
   [property descriptors](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/getOwnPropertyDescriptor) on a target object and its prototype chain. To avoid doing that for every call `cls-class-proxy` caches property descriptors in a Map. It's enabled by default.
