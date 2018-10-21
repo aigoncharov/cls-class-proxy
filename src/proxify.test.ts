@@ -23,7 +23,7 @@ describe.only('proxify', () => {
   }
 
   // default should be used for undefined
-  const namespaceNames = [undefined, 'TestNamespace', Symbol()]
+  const namespaceNames = [undefined, 'TestNamespace']
   const caches = [undefined, true, false]
   for (const namespaceName of namespaceNames) {
     const namespaceNameToGet: any =
@@ -56,11 +56,7 @@ describe.only('proxify', () => {
         }
       }
 
-      describe(`namespace ${
-        typeof namespaceName === 'symbol'
-          ? namespaceName.toString()
-          : namespaceName
-      }, cache: ${cache}`, () => {
+      describe(`namespace ${namespaceName}, cache: ${cache}`, () => {
         let testProxified: Test
         let spyGetPropertyDescriptor: SinonSpy
 

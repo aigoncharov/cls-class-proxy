@@ -1,6 +1,6 @@
 {
   "name": "cls-class-proxy",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "A Proxy-based lightweight library to add [Continuation-Local Storage aka (CLS)](https://github.com/jeff-lewis/cls-hooked) to class contructor, method calls, getters and setters",
   "keywords": [
     "cls",

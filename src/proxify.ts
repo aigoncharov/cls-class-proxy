@@ -69,7 +69,7 @@ export class HandlerManager {
 }
 
 export interface IProxifyOptions {
-  namespace?: string | symbol
+  namespace?: string
   cache?: boolean
 }
 export const proxify = ({

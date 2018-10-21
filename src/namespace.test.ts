@@ -12,7 +12,7 @@ describe('namespace', () => {
 
   describe('getOrCreateClsNamespace', () => {
     it('creates a new namespace', () => {
-      const namespaceName = Symbol()
+      const namespaceName = 'namespaceName'
       const spyCreateNamespace = sinon.spy(clsHooked, 'createNamespace')
       const namespace: clsHooked.Namespace = getOrCreateClsNamespace(
         namespaceName,
@@ -22,7 +22,7 @@ describe('namespace', () => {
       expect(namespace).to.have.property('name', namespaceName)
     })
     it('retrieves an existing namespace', () => {
-      const namespaceName = Symbol()
+      const namespaceName = 'namespaceName'
       getOrCreateClsNamespace(namespaceName)
       const spyCreateNamespace = sinon.spy(clsHooked, 'createNamespace')
       const namespace = getOrCreateClsNamespace(namespaceName)
