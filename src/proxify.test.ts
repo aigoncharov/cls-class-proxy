@@ -12,9 +12,7 @@ describe.only('proxify', () => {
   afterEach(() => sinon.restore())
   afterEach(() => reset())
 
-  const checkNamespaceIsActive = (
-    namespaceName: string | symbol,
-  ): Namespace => {
+  const checkNamespaceIsActive = (namespaceName: string): Namespace => {
     const namespace = getNamespace(namespaceName)
     expect(namespace).not.to.be.equal(undefined)
     expect(namespace.active).not.to.be.deep.equal(undefined)
